@@ -4,10 +4,12 @@
   "main": "laravel-form-render.js",
   "description": "JS to render form components within Laravel view",
   "dependencies": {
-    "jquery": ">=1.7"
+    "jquery": ">=1.7",
+    "validate.js": "^0.13.1"
   },
-  "devDependencies": {
-    "jquery": "^3.1.1"
+  "devDependencies": {    
+    "jquery":"^3.3.1",
+    "validate.js": "^0.13.1"
   },
   "repository": {
     "type": "git",
@@ -19,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/dmytro.biriukov/laravel-form-render/issues"
   },
-  "homepage": "https://github.com/dmytro.biriukov/laravel-form-render"
+  "homepage": "https://github.com/dmytro.biriukov/laravel-form-render",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
 }

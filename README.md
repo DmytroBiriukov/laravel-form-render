@@ -55,6 +55,10 @@ JS code to render form components.
 
 See also the list of [contributors](https://github.com/dmytro.biriukov/laravel-form-render/contributors) who participated in this project.
 
+## Aknowledgements
+
+* We use [online minifier](https://javascript-minifier.com)
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
