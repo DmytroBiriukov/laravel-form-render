@@ -1,0 +1,23 @@
+{
+  "name": "laravel-form-render",
+  "version": "1.0.0",
+  "main": "laravel-form-render.js",
+  "description": "JS to render form components within Laravel view",
+  "dependencies": {
+    "jquery": ">=1.7"
+  },
+  "devDependencies": {
+    "jquery": "^3.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmytro.biriukov/laravel-form-render.git"
+  },
+  "keywords": [],
+  "author": "Dmytro Biriukov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dmytro.biriukov/laravel-form-render/issues"
+  },
+  "homepage": "https://github.com/dmytro.biriukov/laravel-form-render"
+}
