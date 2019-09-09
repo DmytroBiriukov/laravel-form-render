@@ -45,7 +45,7 @@ JS code to render form components.
 ## Dependencies:
 
 * jQuery
-* cdnjs.cloudflare.com/ajax/libs/validate.js
+* Validation [validate.js](http://validatejs.org/)
 * Select2
 * Switchery
     
@@ -55,7 +55,7 @@ JS code to render form components.
 
 See also the list of [contributors](https://github.com/dmytro.biriukov/laravel-form-render/contributors) who participated in this project.
 
-## Aknowledgements
+## Acknowledgement
 
 * We use [online minifier](https://javascript-minifier.com)
 

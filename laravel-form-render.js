@@ -129,7 +129,7 @@
 
             var s = $('<input />', { type: 'checkbox', id: props.prefix_id + component, value: props.value });
             s.addClass('switchery-primary');
-            if(props.hasOwnProperty('checked')) s.prop('checked', true); else s.prop('checked', false);
+            if(props.hasOwnProperty('checked') && props.checked == true) s.prop('checked', true); else s.prop('checked', false);
             form_group_label.append(s);
             form_group_label.css('margin-bottom', '40px');
             form_group.append(form_group_label);
