@@ -28,20 +28,36 @@
         var state = {
             components: [
                 first_component : [
-                    handler : ,
+                    handler : selectComponentRender,
                     props : { 
-                        value : "hello!"
+                        value : "Hello!",
+                        options : [
+                            option_1 : "Hello!",
+                            option_2 : "Alloha!",
+                            option_3 : "Hey!"
+                        ]
                     }
                 ],
                 second_component : [
 
+                ],
+                attributed_select_component : [
+                    handler : selectComponentRender,
+                    props : {
+                        value : "selected_value",
+                        attributed_options : [
+                            { code : "option_1", attrs : {"attr1" : "attr1_value1", "attr2" : "attr2_value1"} },
+                            { code : "option_2", attrs : {"attr1" : "attr1_value2", "attr2" : "attr2_value2"} }
+                        ]
+                    }
                 ]
             ],
             validation: [
                 first_component : {},
                 second_component : {
                     presence: true   
-                }
+                },
+                attributed_select_component : {}
             ]
         };
 

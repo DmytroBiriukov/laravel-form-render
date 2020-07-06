@@ -48,7 +48,15 @@ JS code to render form components.
 * Validation [validate.js](http://validatejs.org/)
 * Select2
 * Switchery
-    
+
+## Version 1.0.2
+
+Backward compatibility is supported. 
+
+Main extensions:
+
+* attributed select was added. 
+
 ## Author
 
 * **Dmytro Biriukov** -
