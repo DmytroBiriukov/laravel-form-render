@@ -138,6 +138,10 @@ function switchComponentRender(component, parent, props, events = {}, classes = 
     form_group.css('min-height', '30px');
 
     var label_span = $('<span></span>')
+
+    var form_group_label = $('<label></label>');
+    form_group_label.addClass('checkbox-inline checkbox-left checkbox-switchery switchery-sm');
+
     if(props.hasOwnProperty('hint')){
         append_modal(form_group, component, props.hint['title'], props.hint['text']);
         label_span.addClass( props.hint['css'] );
@@ -150,9 +154,6 @@ function switchComponentRender(component, parent, props, events = {}, classes = 
     
     label_span.html(props.label);
     form_group.append(label_span);
-
-    var form_group_label = $('<label></label>');
-    form_group_label.addClass('checkbox-inline checkbox-left checkbox-switchery switchery-sm');
 
     var s = $('<input />', { type: 'checkbox', id: props.prefix_id + component, value: props.value });
     s.addClass('switchery-primary');
