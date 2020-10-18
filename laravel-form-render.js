@@ -45,9 +45,9 @@ function ParseInt(value){
     return parsed;
 }
 
-function emptyComponentRender(component, parent, props, events = {}) {
+function emptyComponentRender(component, parent, props, events = {}, classes = 'col-md-2') {
     var col = $('<div></div>');
-    col.addClass('col-md-2');
+    col.addClass((props.hasOwnProperty('col_class'))? props.col_class : classes);
     var form_group = $('<div></div>');
     var prefix_class = (props.hasOwnProperty('prefix_class'))? props.prefix_class : '';
     form_group.addClass('form-group ' + prefix_class + component);
@@ -69,7 +69,7 @@ function emptyComponentRender(component, parent, props, events = {}) {
 /// events (object of event handling functions, where key are variable)
 function textComponentRender(component, parent, props, events = {}, classes = 'col-md-2'){
     var col = $('<div></div>');
-    col.addClass(classes);
+    col.addClass((props.hasOwnProperty('col_class'))? props.col_class : classes);
     var form_group = $('<div></div>');
     var prefix_class = (props.hasOwnProperty('prefix_class'))? props.prefix_class : '';
     form_group.addClass('form-group ' + prefix_class + component);
@@ -117,6 +117,10 @@ function textComponentRender(component, parent, props, events = {}, classes = 'c
         form_group.append(m);
     }
 
+    if(props.hasOwnProperty('alert_box')){
+        append_alert_box(form_group, component, props.alert_box['class'], props.alert_box['text']);
+    }
+
     col.append(form_group);
     parent.append(col);
 
@@ -129,7 +133,7 @@ function textComponentRender(component, parent, props, events = {}, classes = 'c
 
 function switchComponentRender(component, parent, props, events = {}, classes = 'col-md-3'){
     var col = $('<div></div>');
-    col.addClass(classes);
+    col.addClass((props.hasOwnProperty('col_class'))? props.col_class : classes);
     var form_group = $('<div></div>');
     var prefix_class = (props.hasOwnProperty('prefix_class'))? props.prefix_class : '';
     form_group.addClass('form-group ' + prefix_class + component);
@@ -142,18 +146,21 @@ function switchComponentRender(component, parent, props, events = {}, classes = 
     var form_group_label = $('<label></label>');
     form_group_label.addClass('checkbox-inline checkbox-left checkbox-switchery switchery-sm');
 
+    form_group_label.css('padding', '10px 0px');
+    form_group_label.css('margin-bottom', '40px');
+
     if(props.hasOwnProperty('hint')){
         append_modal(form_group, component, props.hint['title'], props.hint['text']);
         label_span.addClass( props.hint['css'] );
         label_span.on('click', function(e){
             $('#hint_'+component).modal('show');
         });
-    }else{
-        form_group_label.css('margin-bottom', '40px');
     }
-    
+
     label_span.html(props.label);
+    label_span.css('margin:10px');
     form_group.append(label_span);
+    form_group.append('<br>');
 
     var s = $('<input />', { type: 'checkbox', id: props.prefix_id + component, value: props.value });
     s.addClass('switchery-primary');
@@ -167,6 +174,10 @@ function switchComponentRender(component, parent, props, events = {}, classes = 
     form_group_label.append(s);
     form_group.append(form_group_label);
 
+    if(props.hasOwnProperty('alert_box')){
+        append_alert_box(form_group, component, props.alert_box['class'], props.alert_box['text']);
+    }
+
     col.append(form_group);
     parent.append(col);
     
@@ -179,7 +190,7 @@ function switchComponentRender(component, parent, props, events = {}, classes = 
 
 function selectComponentRender(component, parent, props, events = {}, classes = 'col-md-3'){
     var col = $('<div></div>');
-    col.addClass(classes);
+    col.addClass((props.hasOwnProperty('col_class'))? props.col_class : classes);
     var form_group = $('<div></div>');
     form_group.addClass('form-group ' + component);
     var prefix_class = (props.hasOwnProperty('prefix_class'))? props.prefix_class : '';
@@ -259,6 +270,11 @@ function selectComponentRender(component, parent, props, events = {}, classes = 
     }
 
     form_group.append(input_group);
+
+    if(props.hasOwnProperty('alert_box')){
+        append_alert_box(form_group, component, props.alert_box['class'], props.alert_box['text']);
+    }
+
     col.append(form_group);
     parent.append(col);
 
@@ -280,7 +296,7 @@ function selectComponentRender(component, parent, props, events = {}, classes = 
 
 function selectParameterRender(component, parent, props, events = {}, classes = ''){
     var col = $('<div></div>');
-    col.addClass(classes);
+    col.addClass((props.hasOwnProperty('col_class'))? props.col_class : classes);
     var form_group = $('<div></div>');
     form_group.addClass('form-group ' + component);
     var prefix_class = (props.hasOwnProperty('prefix_class'))? props.prefix_class : '';
@@ -342,6 +358,10 @@ function selectParameterRender(component, parent, props, events = {}, classes = 
                 s.val(v).change();
             }
         }
+    }
+
+    if(props.hasOwnProperty('alert_box')){
+        append_alert_box(form_group, component, props.alert_box['class'], props.alert_box['text']);
     }
 
     form_group.append(s);
@@ -440,6 +460,10 @@ function textParameterRender(component, parent, props, events = {}, classes = ''
         form_group.append(m);
     }
 
+    if(props.hasOwnProperty('alert_box')){
+        append_alert_box(form_group, component, props.alert_box['class'], props.alert_box['text']);
+    }
+
     parent.append(form_group);
 
     Object.keys(events).forEach(function(evt) {
@@ -502,7 +526,6 @@ function onChangeSwitcherDefaultHandler(){
     }else{
         setProp(this.id, 'value', "false");
     }
-//            console.log( getProp(this.id, 'value') );
 }
 
 function onChangeInputDefaultHandler(){
@@ -583,5 +606,13 @@ function append_modal(parent, component, title, text){
     c.append(b);
     d.append(c);
     m.append(d);
+    parent.append(m);
+}
+
+function append_alert_box(parent, component, class_, text){
+    var m = $('<div class="alert alert-styled-left alert-bordered help-block">');
+    m.attr('id', 'alert_box_' + component);
+    m.addClass(class_);
+    m.html(text);
     parent.append(m);
 }

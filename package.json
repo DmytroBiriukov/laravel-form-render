@@ -1,6 +1,6 @@
 {
   "name": "laravel-form-render",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "laravel-form-render.js",
   "description": "JS to render form components within Laravel view",
   "dependencies": {

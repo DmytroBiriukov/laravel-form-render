@@ -49,7 +49,7 @@ JS code to render form components.
 * Select2
 * Switchery
 
-## Version 1.0.2
+## Version 1.0.5
 
 Backward compatibility is supported. 
 
