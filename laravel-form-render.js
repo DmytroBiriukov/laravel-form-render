@@ -162,7 +162,7 @@ function switchComponentRender(component, parent, props, events = {}, classes = 
     form_group.append(label_span);
     form_group.append('<br>');
 
-    var s = $('<input />', { type: 'checkbox', id: props.prefix_id + component, value: props.value });
+    var s = $('<input />', { type: 'checkbox', id: props.prefix_id + component, name: props.prefix_id + component, value: props.value });
     s.addClass('switchery-primary');
     if(props.hasOwnProperty('checked') && props.checked == true) {
         s.prop('checked', true); 
@@ -304,7 +304,7 @@ function selectParameterRender(component, parent, props, events = {}, classes = 
     form_group.css('margin-bottom', '40px');            
     form_group.css('width', '100%');
     var form_group_label = $('<label></label>');
-    form_group_label.addClass('control-label');
+    form_group_label.addClass('col-sm-6 text-right control-label');
     if(props.hasOwnProperty('hint')){
         append_modal(form_group, component, props.hint['title'], props.hint['text']);
         form_group_label.addClass( props.hint['css'] );
@@ -364,7 +364,11 @@ function selectParameterRender(component, parent, props, events = {}, classes = 
         append_alert_box(form_group, component, props.alert_box['class'], props.alert_box['text']);
     }
 
-    form_group.append(s);
+    var wrapper_select = $('<div></div>');
+    wrapper_select.addClass('input-group col-sm-6');
+    wrapper_select.append(s);
+
+    form_group.append(wrapper_select);
     col.append(form_group);
 
     parent.append(col);
