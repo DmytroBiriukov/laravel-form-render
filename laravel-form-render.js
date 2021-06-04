@@ -26,6 +26,9 @@ function matchFunction(v){
         case "selectParameterRender":
             f = selectParameterRender;
             break;                    
+        case "switchParameterRender":
+            f = switchParameterRender;
+            break;
         default:
             f = emptyComponentRender;
     }
@@ -367,6 +370,7 @@ function selectParameterRender(component, parent, props, events = {}, classes = 
     var wrapper_select = $('<div></div>');
     wrapper_select.addClass('input-group col-sm-6');
     wrapper_select.append(s);
+    wrapper_select.css("padding-left", "10px");
 
     form_group.append(wrapper_select);
     col.append(form_group);
@@ -434,7 +438,7 @@ function textParameterRender(component, parent, props, events = {}, classes = ''
 
     var input_group = $('<div></div>');
     input_group.addClass("input-group col-sm-6");
-
+    input_group.css("padding-left", "10px");
     var t = $('<input />');
     t.addClass('form-control input-xs');
     t.attr('name', component);
@@ -474,6 +478,67 @@ function textParameterRender(component, parent, props, events = {}, classes = ''
         if(events.hasOwnProperty(evt)) t.bind(evt, events[evt]);
     });
 
+}
+
+function switchParameterRender(component, parent, props, events = {}, classes = 'col-md-3'){
+    var col = $('<div></div>');
+    col.addClass((props.hasOwnProperty('col_class'))? props.col_class : classes);
+    var form_group = $('<div></div>');
+    var prefix_class = (props.hasOwnProperty('prefix_class'))? props.prefix_class : '';
+    form_group.addClass('form-group ' + prefix_class + component);
+    form_group.attr('id', prefix_class + component);
+    form_group.css('width', '100%');
+    form_group.css('min-height', '30px');
+
+    var label_span = $('<span></span>');
+
+    var form_group_label = $('<label></label>');
+    form_group_label.addClass('checkbox-inline checkbox-left checkbox-switchery switchery-sm');
+
+    form_group_label.css('padding', '10px 10px');
+    form_group_label.css('margin-bottom', '22px');
+    form_group_label.css('margin-left', '10px');
+
+    if(props.hasOwnProperty('hint')){
+        append_modal(form_group, component, props.hint['title'], props.hint['text']);
+        label_span.addClass( props.hint['css'] );
+        label_span.on('click', function(e){
+            $('#hint_'+component).modal('show');
+        });
+    }
+
+    label_span.html(props.label);
+    label_span.css('margin:10px');
+    form_group.append(label_span);
+
+    var s = $('<input />', { type: 'checkbox', id: props.prefix_id + component, name: props.prefix_id + component, value: props.value });
+    s.addClass('switchery-primary');
+
+    if(props.hasOwnProperty('checked') && props.checked == true) {
+        s.prop('checked', true); 
+        setProp(component, 'value', 'true');
+    }else{ 
+        s.prop('checked', false);
+        setProp(component, 'value', 'false');
+    }
+
+    s.css("padding-left", "4px;");
+
+    form_group_label.append(s);
+    form_group.append(form_group_label);
+
+    if(props.hasOwnProperty('alert_box')){
+        append_alert_box(form_group, component, props.alert_box['class'], props.alert_box['text']);
+    }
+
+    col.append(form_group);
+    parent.append(col);
+    
+    Object.keys(events).forEach(function(evt) {
+        if(events.hasOwnProperty(evt)) s.bind(evt, events[evt]);
+    });
+
+    return form_group;
 }
 
 function componentByName(component){
