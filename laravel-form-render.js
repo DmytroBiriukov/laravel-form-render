@@ -25,7 +25,10 @@ function matchFunction(v){
             break;
         case "selectParameterRender":
             f = selectParameterRender;
-            break;                    
+            break;
+        case "selectParameterRender2":
+            f = selectParameterRender2;
+            break;                        
         case "switchParameterRender":
             f = switchParameterRender;
             break;
@@ -298,6 +301,93 @@ function selectComponentRender(component, parent, props, events = {}, classes = 
 }
 
 function selectParameterRender(component, parent, props, events = {}, classes = ''){
+    var col = $('<div></div>');
+    col.addClass((props.hasOwnProperty('col_class'))? props.col_class : classes);
+    var form_group = $('<div></div>');
+    form_group.addClass('form-group ' + component);
+    var prefix_class = (props.hasOwnProperty('prefix_class'))? props.prefix_class : '';
+    form_group.attr('id', prefix_class + component);
+    form_group.css('margin-bottom', '40px');            
+    form_group.css('width', '100%');
+    var form_group_label = $('<label></label>');
+    form_group_label.addClass('control-label');
+    if(props.hasOwnProperty('hint')){
+        append_modal(form_group, component, props.hint['title'], props.hint['text']);
+        form_group_label.addClass( props.hint['css'] );
+        form_group_label.on('click', function(e){
+            $('#hint_'+component).modal('show');
+        });
+    }
+    form_group_label.html( props.label );
+    form_group.append(form_group_label);
+    var s = $('<select></select>');
+    s.addClass('form-control select-size-xs select');
+    s.attr("name", component);
+    s.attr("id", component);
+    s.css("width", "100%");
+
+    if(props.hasOwnProperty('attributed_options')){
+        Object.keys(props.attributed_options).forEach(function (i) {
+            var o = $('<option></option>');
+            o.val(i);
+            o.html(props.attributed_options[i].html);
+            Object.keys(props.attributed_options[i].attrs).forEach(function (attr_key) {
+                o.attr(attr_key, props.attributed_options[i].attrs[attr_key]);
+            });
+            s.append(o);
+        });
+        s.addClass('select-search');
+        if(props.hasOwnProperty('value')){
+            var v = props.value;
+            if(props.attributed_options.hasOwnProperty(v)) {
+                s.val(v).change();
+            }
+        }
+    }else{
+        var selected_options_keys = Object.keys(props.options).sort(
+            function(a, b){
+                var int_a = 0; var int_b = 0;
+                if(a != '' && parseInt(a) != NaN) int_a = parseInt(a);
+                if(b != '' && parseInt(b) != NaN) int_b = parseInt(b);
+                return int_a - int_b;
+            }
+        );
+        selected_options_keys.forEach(function (i) {
+            var o = $('<option></option>');
+            o.val(i);
+            o.html(props.options[i]);
+            s.append(o);
+        });    
+        if(props.hasOwnProperty('value')){
+            var v = props.value;
+            if(props.options.hasOwnProperty(v)) {
+                s.val(v).change();
+            }
+        }
+    }
+
+    if(props.hasOwnProperty('alert_box')){
+        append_alert_box(form_group, component, props.alert_box['class'], props.alert_box['text']);
+    }
+
+    form_group.append(s);
+    col.append(form_group);
+
+    parent.append(col);
+
+    Object.keys(events).forEach(function(evt) {
+        if(events.hasOwnProperty(evt)) s.bind(evt, events[evt]);
+    });
+
+    s.select2({
+        minimumResultsForSearch : Infinity,
+        containerCssClass : 'select-xs'
+    });
+
+    return form_group;
+}
+
+function selectParameterRender2(component, parent, props, events = {}, classes = ''){
     var col = $('<div></div>');
     col.addClass((props.hasOwnProperty('col_class'))? props.col_class : classes);
     var form_group = $('<div></div>');
