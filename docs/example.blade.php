@@ -16,12 +16,6 @@
         .help-block.error {
             margin-bottom: 5px;
         }
-        .thin-border {
-            border-left: 6px solid rgba(0, 112, 185, 0.3);
-            background-color: rgba(235, 235, 235, 0.3);
-            border-radius: 10px;
-            padding: 10px;
-        }
     </style>
     <script>
 
