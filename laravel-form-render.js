@@ -784,31 +784,31 @@ function autocompleteComponentRender(component, parent, props, events = {}, clas
             type: 'POST',
             data: data,
             beforeSend: function(){
-                console.log('before send', data);
+                setProp(component, 'value', null);
             },
             success: function (response) {
                 if (response) {
-                            for (i = 0; i < response.length; i++) {
-                                b = document.createElement("div");
-                                var s = response[i].country + ' ' + response[i].city;
-                                var pos = s.indexOf(val);
-                                b.innerHTML = s.substr(0, pos);
-                                b.innerHTML += "<strong>" + s.substr(pos, val.length) + "</strong>";
-                                b.innerHTML += s.substr(pos + val.length);
-                                b.innerHTML += "<input type='hidden' value='" + s + "' data-location='" + JSON.stringify(response[i]) + "'>";
-                                b.addEventListener("click", function(e) {
-                                    t.val(this.getElementsByTagName("input")[0].value);
-                                    t.attr('data-location', this.getElementsByTagName("input")[0].getAttribute('data-location'));
-                                    closeAllLists();
-                                });
-                                a.appendChild(b);
-                            }
+                    for (i = 0; i < response.length; i++) {
+                        b = document.createElement("div");
+                        var s = response[i].country + ' ' + response[i].city;
+                        var pos = s.indexOf(val);
+                        b.innerHTML = s.substr(0, pos);
+                        b.innerHTML += "<strong>" + s.substr(pos, val.length) + "</strong>";
+                        b.innerHTML += s.substr(pos + val.length);
+                        b.innerHTML += "<input type='hidden' value='" + s + "' data-location='" + JSON.stringify(response[i]) + "'>";
+                        b.addEventListener("click", function(e) {
+                            t.val(this.getElementsByTagName("input")[0].value);
+                            setProp(component, 'value', JSON.parse(this.getElementsByTagName("input")[0].getAttribute('data-location')));
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                    }
                 } else {
-                    console.log('response', response);
+                    setProp(component, 'value', null);
                 }
             },
             error :function( jqXhr ) {
-                console.log('errors', jqXhr);
+                setProp(component, 'value', null);
             }
         });
     });
