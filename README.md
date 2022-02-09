@@ -27,6 +27,7 @@ JS code to render form components.
 - parameterizedComponentRender
 - textParameterRender
 - emptyComponentRender
+- autocompleteComponentRender
 
 ### Props
 

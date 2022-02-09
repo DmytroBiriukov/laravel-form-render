@@ -41,6 +41,9 @@ function matchFunction(v){
         case "textRadioComponentRender":
             f = textRadioComponentRender;
             break;
+        case "autocompleteComponentRender":
+            f = autocompleteComponentRender;
+            break;
         default:
             f = emptyComponentRender;
     }
@@ -719,6 +722,122 @@ function switchParameterRender(component, parent, props, events = {}, classes = 
     return form_group;
 }
 
+function autocompleteComponentRender(component, parent, props, events = {}, classes = 'col-md-3'){
+    var col = $('<div></div>');
+    col.addClass((props.hasOwnProperty('col_class'))? props.col_class : classes);
+    var form_group = $('<div></div>');
+    var prefix_class = (props.hasOwnProperty('prefix_class'))? props.prefix_class : '';
+    form_group.addClass('form-group ' + prefix_class + component);
+    form_group.attr('id', prefix_class + component);
+
+    addLabel(component, form_group, props);
+
+    var input_group = $('<div></div>');
+    input_group.addClass("input-group autocomplete");
+
+    var t = $('<input />');
+    t.addClass('form-control input-xs');
+    t.attr('name', component);
+    t.attr('id', component);
+    t.attr('required', '');
+    t.attr('placeholder', props.placeholder);
+    t.val(props.value);
+    t.attr('data-location');
+
+    var currentFocus;
+    function addActive(x) {
+        if (!x) return false;
+        for (var i = 0; i < x.length; i++) x[i].classList.remove("autocomplete-active");
+        if (currentFocus >= x.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (x.length - 1);
+        x[currentFocus].classList.add("autocomplete-active");
+    }
+    function closeAllLists(elmnt) {
+        var x = document.getElementsByClassName("autocomplete-items");
+        var inp = document.getElementById(component);
+        for (var i = 0; i < x.length; i++) {
+            if (elmnt != x[i] && elmnt != inp) {
+                x[i].parentNode.removeChild(x[i]);
+            }
+        }
+    }
+    document.addEventListener("click", function (e) {
+        closeAllLists(e.target);
+    });
+
+    t.bind("input", function(e) {
+        var a, b, i, val = this.value;
+        closeAllLists();
+        if (!val) { return false;}
+        currentFocus = -1;
+        a = document.createElement("div");
+        a.setAttribute("id", this.id + "autocomplete-list");
+        a.setAttribute("class", "autocomplete-items");
+        this.parentNode.appendChild(a);
+
+        var data = {
+            query : val
+        };
+
+        $.ajax({
+            url: props.url,
+            type: 'POST',
+            data: data,
+            beforeSend: function(){
+                console.log('before send', data);
+            },
+            success: function (response) {
+                if (response) {
+                            for (i = 0; i < response.length; i++) {
+                                b = document.createElement("div");
+                                var s = response[i].country + ' ' + response[i].city;
+                                var pos = s.indexOf(val);
+                                b.innerHTML = s.substr(0, pos);
+                                b.innerHTML += "<strong>" + s.substr(pos, val.length) + "</strong>";
+                                b.innerHTML += s.substr(pos + val.length);
+                                b.innerHTML += "<input type='hidden' value='" + s + "' data-location='" + JSON.stringify(response[i]) + "'>";
+                                b.addEventListener("click", function(e) {
+                                    t.val(this.getElementsByTagName("input")[0].value);
+                                    t.attr('data-location', this.getElementsByTagName("input")[0].getAttribute('data-location'));
+                                    closeAllLists();
+                                });
+                                a.appendChild(b);
+                            }
+                } else {
+                    console.log('response', response);
+                }
+            },
+            error :function( jqXhr ) {
+                console.log('errors', jqXhr);
+            }
+        });
+    });
+
+    t.bind("keydown", function(e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    currentFocus++;
+                    addActive(x);
+                } else if (e.keyCode == 38) { 
+                    currentFocus--;
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (x) x[currentFocus].click();
+                    }
+                }
+    });
+
+    input_group.append(t);
+    form_group.append(input_group);
+    col.append(form_group);
+    parent.append(col);
+
+    return form_group;
+}
+
 function componentByName(component){
     var results = state['components'].filter(i => {
         return i.component === component;
@@ -933,6 +1052,11 @@ function addStyles(){
         '.radio-group-component:checked{border:10px solid #0070b9;} ' +
         '.thin-border{border-left: 6px solid rgba(0, 112, 185, 0.3);background-color: rgba(235, 235, 235, 0.3);border-radius: 10px;padding: 10px;margin-bottom: 8px;} ' +
         '.hint-modal{ background-image: url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKdGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDUgNzkuMTYzNDk5LCAyMDE4LzA4LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo4NzJlNDFmNC0zMzAzLTZmNDEtYTc4OS00ZmY3NmVjMDBmYzMiIHhtcE1NOkRvY3VtZW50SUQ9ImFkb2JlOmRvY2lkOnBob3Rvc2hvcDo4ZGNjMjEwZi0yMjI1LWVhNDItOTM3Zi0zMzU3ZWE1ODdlNjYiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6YTM5MDM1ODUtNTM3Mi00MDQ2LWFjMDEtMzBkNzJjNDIzNjczIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE3IChXaW5kb3dzKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjEtMDItMDNUMDg6MTY6NTMrMDI6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIxLTAyLTAzVDA4OjIxOjIzKzAyOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIxLTAyLTAzVDA4OjIxOjIzKzAyOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6YzBkMDUxZDMtYThlYy04YzRlLTk1NjQtNDA2MDNhODgxNzk2IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjBhMjlmYTg2LTNkN2QtMTM0YS05YmNmLTJiNDYxOTgzY2MwNSIgc3RSZWY6b3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjg3MmU0MWY0LTMzMDMtNmY0MS1hNzg5LTRmZjc2ZWMwMGZjMyIvPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoyNGVjYjU3MC0wMzc0LWEzNDgtOTFhMi01NWY3MWIzZjEyZDYiIHN0RXZ0OndoZW49IjIwMjEtMDItMDNUMDg6MjE6MTErMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE5IChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY29udmVydGVkIiBzdEV2dDpwYXJhbWV0ZXJzPSJmcm9tIGltYWdlL3BuZyB0byBhcHBsaWNhdGlvbi92bmQuYWRvYmUucGhvdG9zaG9wIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJkZXJpdmVkIiBzdEV2dDpwYXJhbWV0ZXJzPSJjb252ZXJ0ZWQgZnJvbSBpbWFnZS9wbmcgdG8gYXBwbGljYXRpb24vdm5kLmFkb2JlLnBob3Rvc2hvcCIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MGEyOWZhODYtM2Q3ZC0xMzRhLTliY2YtMmI0NjE5ODNjYzA1IiBzdEV2dDp3aGVuPSIyMDIxLTAyLTAzVDA4OjIxOjExKzAyOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOSAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmMwZDA1MWQzLWE4ZWMtOGM0ZS05NTY0LTQwNjAzYTg4MTc5NiIgc3RFdnQ6d2hlbj0iMjAyMS0wMi0wM1QwODoyMToyMyswMjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjb252ZXJ0ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImZyb20gYXBwbGljYXRpb24vdm5kLmFkb2JlLnBob3Rvc2hvcCB0byBpbWFnZS9wbmciLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImRlcml2ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImNvbnZlcnRlZCBmcm9tIGFwcGxpY2F0aW9uL3ZuZC5hZG9iZS5waG90b3Nob3AgdG8gaW1hZ2UvcG5nIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDphMzkwMzU4NS01MzcyLTQwNDYtYWMwMS0zMGQ3MmM0MjM2NzMiIHN0RXZ0OndoZW49IjIwMjEtMDItMDNUMDg6MjE6MjMrMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE5IChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7ZmCT2AAAB6UlEQVQ4ja2TsY7TQBCGZ/eyXp3Plm3aVOcCIdLQUyFRhJICniDAI8Aj8ACHRKTwAod0NBSH7uioEIjmoLCliEQb2YUl24oNG+95hgKIkktSwV+tNP83M5rZYUQEq1osFjfLshxUVXXPGHMIACCEGDuOc+p53khK+W0NICIgIkBEK03ToyiK2izLSGtNiEiISFpryrKMoihqkyR5iYj7f7klPJ1Oz5RS1LYt7VLbtqSUoslk8h4RrWWCNE1fKKV2glellKI0TY+ICEBr3Yvj+HK18rFq6O6HOcFJTnCSU/iupGPVrHUSx/Gl1rrHy7Ic+L6/xzlfzmVcIzzoWkD3fTi77cC4Rnj29ecyzjmHIAj2yrIcdKqq6ne73bXBPr0ul+/c/N5SeMDXPI7jwGw263NjTGhZFmzT65mBhx9rCA84DG/ZazHLssAYE3a2kn8qP/nyAwLB4NMdFwLBNtbPGGs6Qohx0zQ3pJQbSR4fWhAIvgEDABhjQAgx6TiOczqfzzcSBILB897+rgahqiqwbfuce573qiiKFhHXDJ+LFtibAq69LTdgRIQ8z1vf90dcSnnhuu4wSZKd1a4qSRJwXXcopbz4P1/5X46JbTnnXlEUj+q67htjQsZYI4T4btv2ue/7Iynlxar/F0Sd3PwpfgJCAAAAAElFTkSuQmCC\');padding-right:18px;cursor: pointer;background-repeat: no-repeat; background-position: top right;}',
+    css = css + ' .autocomplete {position: relative; display: inline-block; width: 100%} ' +
+        '.autocomplete-items {position: absolute; border: 1px solid #d4d4d4; border-bottom: none; border-top: none; z-index: 99; top: 100%; left: 0; right: 0;} ' +
+        '.autocomplete-items div {padding: 10px; cursor: pointer; background-color: #fff; border-bottom: 1px solid #d4d4d4; } ' +
+        '.autocomplete-items div:hover {background-color: #e9e9e9; } ' +
+        '.autocomplete-active {background-color: DodgerBlue !important; color: #ffffff;} ';
     style = document.createElement('style');
     style.type = 'text/css';
     if (style.styleSheet){

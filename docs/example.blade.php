@@ -44,7 +44,15 @@
                             { code : "option_2", attrs : {"attr1" : "attr1_value2", "attr2" : "attr2_value2"} }
                         ]
                     }
-                ]
+                ],
+                autocomplete_component : [
+                    handler : autocompleteComponentRender,
+                    props : {
+                        placeholder: "Search for...",
+                        value: "",
+                        url: "test.com/path/" // Server POST endpoint
+                    }
+                ],
             ],
             validation: [
                 first_component : {},
