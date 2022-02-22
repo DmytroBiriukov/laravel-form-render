@@ -775,10 +775,17 @@ function autocompleteComponentRender(component, parent, props, events = {}, clas
         a.setAttribute("class", "autocomplete-items");
         this.parentNode.appendChild(a);
 
+        var minLen = val.split(" ").length > 1 ? val.split(" ").reduce(
+            function (a, b) {
+                return a.length < b.length ? a.length : b.length;
+            }
+        ) : minLen = val.length - 2;
+
         var data = {
             query : val
         };
 
+        if (minLen >= 3)
         $.ajax({
             url: props.url,
             type: 'POST',
@@ -788,14 +795,35 @@ function autocompleteComponentRender(component, parent, props, events = {}, clas
             },
             success: function (response) {
                 if (response) {
+                    
                     for (i = 0; i < response.length; i++) {
                         b = document.createElement("div");
                         var s = response[i].country + ' ' + response[i].city;
-                        var pos = s.indexOf(val);
-                        b.innerHTML = s.substr(0, pos);
-                        b.innerHTML += "<strong>" + s.substr(pos, val.length) + "</strong>";
-                        b.innerHTML += s.substr(pos + val.length);
-                        b.innerHTML += "<input type='hidden' value='" + s + "' data-location='" + JSON.stringify(response[i]) + "'>";
+
+                        if (val.split(" ").length > 1) {
+                        /*
+                            b.innerHTML = val
+                                .split(" ")
+                                .map(function (a) {
+                                    return [s.toLowerCase().indexOf(a.toLowerCase()), a.length];
+                                })
+                                .sort(function (a, b) { 
+                                    return a[0] < b[0] ? -1 : 1; 
+                                })
+                                .reduce(function (a, substr_) {
+                                    return substr_ + "<strong>" + s.substr(a[0], a[1]) + "</strong>";
+                                }, s.substr(0, posArray[0][0]));
+                        */
+                            b.innerHTML = s + "<input type='hidden' value='" + s + "' data-location='" + JSON.stringify(response[i]) + "'>";
+                        } else {
+                            var len = val.length;
+                            var pos = s.toLowerCase().indexOf(val.toLowerCase());
+                            b.innerHTML = s.substr(0, pos);
+                            b.innerHTML += "<strong>" + s.substr(pos, len) + "</strong>";
+                            b.innerHTML += s.substr(pos + len);
+                            b.innerHTML += "<input type='hidden' value='" + s + "' data-location='" + JSON.stringify(response[i]) + "'>";
+                        }
+
                         b.addEventListener("click", function(e) {
                             t.val(this.getElementsByTagName("input")[0].value);
                             setProp(component, 'value', JSON.parse(this.getElementsByTagName("input")[0].getAttribute('data-location')));
@@ -811,6 +839,7 @@ function autocompleteComponentRender(component, parent, props, events = {}, clas
                 setProp(component, 'value', null);
             }
         });
+
     });
 
     t.bind("keydown", function(e) {
