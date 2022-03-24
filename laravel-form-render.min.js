@@ -741,8 +741,8 @@ function autocompleteComponentRender(component, parent, props, events = {}, clas
     t.attr('id', component);
     t.attr('required', '');
     t.attr('placeholder', props.placeholder);
-    t.val(props.value);
-    t.attr('data-location');
+    if (props.valueRender === 'locationValueRender' && props.value) t.val(props.value.country + ' ' + props.value.city); else t.val(props.value);
+    t.attr('data-object');
 
     var currentFocus;
     function addActive(x) {
@@ -779,7 +779,7 @@ function autocompleteComponentRender(component, parent, props, events = {}, clas
             function (a, b) {
                 return a.length < b.length ? a.length : b.length;
             }
-        ) : minLen = val.length - 2;
+        ) : minLen = val.length;
 
         var data = {
             query : val
@@ -814,19 +814,19 @@ function autocompleteComponentRender(component, parent, props, events = {}, clas
                                     return substr_ + "<strong>" + s.substr(a[0], a[1]) + "</strong>";
                                 }, s.substr(0, posArray[0][0]));
                         */
-                            b.innerHTML = s + "<input type='hidden' value='" + s + "' data-location='" + JSON.stringify(response[i]) + "'>";
+                            b.innerHTML = s + "<input type='hidden' value='" + s + "' data-object='" + JSON.stringify(response[i]) + "'>";
                         } else {
                             var len = val.length;
                             var pos = s.toLowerCase().indexOf(val.toLowerCase());
                             b.innerHTML = s.substr(0, pos);
                             b.innerHTML += "<strong>" + s.substr(pos, len) + "</strong>";
                             b.innerHTML += s.substr(pos + len);
-                            b.innerHTML += "<input type='hidden' value='" + s + "' data-location='" + JSON.stringify(response[i]) + "'>";
+                            b.innerHTML += "<input type='hidden' value='" + s + "' data-object='" + JSON.stringify(response[i]) + "'>";
                         }
 
                         b.addEventListener("click", function(e) {
                             t.val(this.getElementsByTagName("input")[0].value);
-                            setProp(component, 'value', JSON.parse(this.getElementsByTagName("input")[0].getAttribute('data-location')));
+                            setProp(component, 'value', JSON.parse(this.getElementsByTagName("input")[0].getAttribute('data-object')));
                             closeAllLists();
                         });
                         a.appendChild(b);
